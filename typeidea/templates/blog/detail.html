@@ -1,27 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    {% if post %}
-    <h1>{{ post.title }}</h1>
-    <div>
-        <span>分类:{{ post.category.name }}</span>
-        <span>作者:{{ post.owner.username }}</span>
-    </div>
-    <hr/>
-    <p>
-        {{ post.content }}
-    </p>
-    {% endif %}
-
-    <div>侧边栏展示：
-	{% for sidebar in sidebars %}
-		<h4>{{ sidebar.title }}</h4>
-		{{ sidebar.content }}
-	{% endfor %}
+{% if post %}
+<h1>{{ post.title }}</h1>
+<div>
+    <span>分类:{{ post.category.name }}</span>
+    <span>作者:{{ post.owner.username }}</span>
 </div>
-</body>
-</html>
+<hr/>
+<p>
+    {{ post.content }}
+</p>
+{% endif %}
