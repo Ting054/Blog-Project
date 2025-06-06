@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
+from celery.schedules import crontab
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -32,6 +33,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django_celery_beat',
     'typeidea',
     'blog.apps.BlogConfig',
     'config.apps.ConfigConfig',
@@ -139,6 +141,23 @@ CACHES = {
     }
 }
 
+# redis 配置
 REDIS_HOST = '127.0.0.1'
 REDIS_PORT = 6379
 REDIS_DB = 0
+
+REDIS_URL = 'redis://127.0.0.1:6379/0'
+
+# Celery 配置
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
+# celery 实现定时落库
+CELERY_BEAT_SCHEDULE = {
+    'sync-pv-uv-every-5-minutes': {
+        'task': 'blog.tasks.sync_pv_uv_to_db',
+        'schedule': crontab(minute='*/5'),
+    },
+}

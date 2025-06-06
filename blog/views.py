@@ -7,7 +7,7 @@ from config.models import SideBar
 from .models import Post, Tag, Category
 
 from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
+from django.views.decorators.cache import cache_page, never_cache
 from django.utils.timezone import now
 from typeidea.utils.redis_helper import incr_pv, incr_uv
 
@@ -116,6 +116,28 @@ class PostDetailView(CommonViewMixin, DetailView):
     context_object_name = 'post'
     pk_url_kwarg = 'post_id'
 
+    @method_decorator(never_cache)
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+
+        # PV统计
+        post = self.get_object()
+        incr_pv(post.id)
+
+        # UV统计（简单用 IP 代替用户ID）
+        uid = self.get_uid(request)
+        if incr_uv(post.id, uid):
+            post.uv += 1
+            post.save(update_fields=['uv'])
+
+        post.pv += 1
+        post.save(update_fields=['pv'])
+
+        return response
+
+    def get_uid(self, request):
+        # 简单版，使用 IP。你可以换成用户ID等
+        return request.META.get('REMOTE_ADDR')
 
 
 
