@@ -3,22 +3,22 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.contrib.admin.models import LogEntry
 
-from blog.adminforms import PostAdminForm
-from blog.models import Tag, Category, Post
-from typeidea.base_admin import BaseOwnerAdmin
+from .adminforms import PostAdminForm
+from .models import Post, Category, Tag
 from typeidea.custom_site import custom_site
+from typeidea.base_admin import BaseOwnerAdmin
 
 
 class PostInline(admin.TabularInline):
     # 在分类的增加页面中可以对文章进行编辑
     fields = ('title', 'desc')  # 定义了在内联表单中要显示的字段（对文章中的标题和摘要进行编辑）
-    extra = 1  # 控制额外多几个
-    model = Post  # 与Post关联
+    extra = 1   # 控制额外多个
+    model = Post   # 与Post关联
 
 
 @admin.register(Category, site=custom_site)
 class CategoryAdmin(BaseOwnerAdmin):
-    inlines = [PostInline]  # 这个属性是一个列表，包含了要在Category编辑页面上显示的内联模型类。
+    inlines = [PostInline]   # 这个属性是一个列表，包含了要在Category编辑页面上显示的内联模型类。
     list_display = ('name', 'status', 'is_nav', 'owner', 'created_time', 'post_count')  # 页面上显示的字段
     fields = ('name', 'status', 'is_nav')  # 增加时显示的字段
 
@@ -60,9 +60,9 @@ class PostAdmin(BaseOwnerAdmin):
     form = PostAdminForm  # 显示摘要改为Textarea组件
     list_display = ['title', 'category', 'status', 'created_time', 'owner', 'operator']
     list_display_links = []
-    list_filter = [CategoryOwnerFilter]
 
-    search_fields = ['title', 'category_name']
+    list_filter = [CategoryOwnerFilter]
+    search_fields = ['title', 'category__name']
 
     actions_on_top = True
     actions_on_bottom = False
@@ -82,7 +82,7 @@ class PostAdmin(BaseOwnerAdmin):
     )
 
     上面和下面两种方法效果类似, 变动的地方都是在新增页面中显示，下面信息更全
-
+    
     """
 
     fieldsets = (
@@ -117,6 +117,14 @@ class PostAdmin(BaseOwnerAdmin):
         )
 
     operator.short_description = '操作'
+
+    # class Media:
+    #     css = {
+    #         'all': ("https://cdn.staticfile.org/twitter-bootstrap/5.3.0/css/bootstrap.min.css",),
+    #
+    #     }
+    #     js = ('https://cdn.staticfile.org/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js',)
+
 
 @admin.register(LogEntry, site=custom_site)
 class LogEntryAdmin(admin.ModelAdmin):

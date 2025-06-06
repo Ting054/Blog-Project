@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from typeidea.custom_site import custom_site
 from .models import Comment
+from typeidea.custom_site import custom_site
 
 
 @admin.register(Comment, site=custom_site)

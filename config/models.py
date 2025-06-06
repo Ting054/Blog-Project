@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
-from django.db import models
 from django.template.loader import render_to_string
+from django.db import models
 
 
 class Link(models.Model):
@@ -35,11 +35,19 @@ class SideBar(models.Model):
         (DISPLAY_HOT, '最热文章'),
         (DISPLAY_COMMENT, '最近评论'),
     )
+
+    STATUS_SHOW = 1
+    STATUS_HIDE = 0
+    STATUS_ITEMS = (
+        (STATUS_SHOW, '展示'),
+        (STATUS_HIDE, '隐藏'),
+    )
+
     title = models.CharField(max_length=50, verbose_name='标题')
     display_type = models.PositiveIntegerField(default=1, choices=SIDE_TYPE, verbose_name='展示类型')
     content = models.CharField(max_length=500, blank=True, verbose_name='内容',
                                help_text='如果设置的不是HTML类型，可为空')
-    status = models.PositiveIntegerField(choices=SIDE_TYPE, default=SIDE_TYPE, verbose_name='状态')
+    status = models.PositiveIntegerField(choices=STATUS_ITEMS, default=STATUS_SHOW, verbose_name='状态')
     owner = models.ForeignKey(User, verbose_name='作者', on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
@@ -48,7 +56,7 @@ class SideBar(models.Model):
 
     @classmethod
     def get_all(cls):
-        return cls.objects.filter(status=cls.SIDE_TYPE)
+        return cls.objects.filter(status=cls.STATUS_SHOW)
 
     @property
     def content_html(self):
@@ -75,3 +83,11 @@ class SideBar(models.Model):
             }
             result = render_to_string('config/sidebar_comments.html', context)
         return result
+
+
+
+
+
+
+
+

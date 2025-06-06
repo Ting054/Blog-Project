@@ -39,6 +39,8 @@ class Category(models.Model):
         }
 
 
+
+
 class Tag(models.Model):
     STATUS_NORMAL = 1
     STATUS_DELETE = 0
@@ -58,7 +60,6 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
-
 class Post(models.Model):
     STATUS_NORMAL = 1
     STATUS_DELETE = 0
@@ -69,6 +70,8 @@ class Post(models.Model):
         (STATUS_DRAFT, '草稿')
     )
 
+    pv = models.PositiveIntegerField(default=1)
+    uv = models.PositiveIntegerField(default=1)
     title = models.CharField(max_length=255, verbose_name='标题')
     desc = models.CharField(max_length=1024, blank=True, verbose_name='摘要')
     content = models.TextField(verbose_name='正文', help_text="正文必须为MarkDown格式")
@@ -77,22 +80,17 @@ class Post(models.Model):
     tag = models.ManyToManyField(Tag, verbose_name='标签')
     owner = models.ForeignKey(User, verbose_name='作者', on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
-    pv = models.PositiveIntegerField(default=1)
-    uv = models.PositiveIntegerField(default=1)
 
     class Meta:
         verbose_name = verbose_name_plural = '文章'
-        ordering = ['-id']  # 根据id进行降序排序
-
-    def __str__(self):
-        return self.title
+        ordering = ['-id']
 
     @staticmethod
     def get_by_tag(tag_id):
         try:
             tag = Tag.objects.get(id=tag_id)
         except Tag.DoesNotExist:
-            tag = None
+            tag =None
             post_list = []
         else:
             post_list = tag.post_set.filter(status=Post.STATUS_NORMAL).select_related('owner', 'category')
@@ -115,5 +113,23 @@ class Post(models.Model):
     def latest_posts(cls):
         queryset = cls.objects.filter(status=cls.STATUS_NORMAL)
         return queryset
+
+    @ classmethod
     def hot_posts(cls):
         return cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-pv')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
